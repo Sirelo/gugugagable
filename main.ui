@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>500</height>
+    <width>900</width>
+    <height>550</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,8 +15,12 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
+
     <item>
      <widget class="QTableWidget" name="tableCoffee">
+      <property name="columnCount">
+       <number>7</number>
+      </property>
       <column>
        <property name="text">
         <string>ID</string>
@@ -54,6 +58,27 @@
       </column>
      </widget>
     </item>
+
+    <item>
+     <layout class="QHBoxLayout" name="buttonsLayout">
+      <item>
+       <widget class="QPushButton" name="btnAdd">
+        <property name="text">
+         <string>Добавить</string>
+        </property>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QPushButton" name="btnEdit">
+        <property name="text">
+         <string>Изменить</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+
    </layout>
   </widget>
  </widget>
