@@ -1,39 +1,39 @@
 import sqlite3
 import sys
-
-from PyQt6 import QtWidgets, uic
+from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QTableWidgetItem, QMessageBox
 
+from UI import main_ui
+from UI import addEditCoffeeForm_ui
 
-DB_NAME = "coffee.sqlite"
-
+DB_NAME = "data/coffee.sqlite"
 
 class AddEditForm(QtWidgets.QWidget):
     def __init__(self, parent=None, record=None):
         super().__init__(parent)
-        uic.loadUi("addEditCoffeeForm.ui", self)
+        self.ui = addEditCoffeeForm_ui.Ui_AddEditForm()
+        self.ui.setupUi(self)
 
         self.record = record
-
         if record:
-            self.lineName.setText(record[1])
-            self.lineRoast.setText(record[2])
-            self.lineGround.setText(record[3])
-            self.lineDescription.setText(record[4])
-            self.linePrice.setText(str(record[5]))
-            self.lineVolume.setText(str(record[6]))
+            self.ui.lineName.setText(record[1])
+            self.ui.lineRoast.setText(record[2])
+            self.ui.lineGround.setText(record[3])
+            self.ui.lineDescription.setText(record[4])
+            self.ui.linePrice.setText(str(record[5]))
+            self.ui.lineVolume.setText(str(record[6]))
 
-        self.btnSave.clicked.connect(self.save)
+        self.ui.btnSave.clicked.connect(self.save)
 
     def save(self):
-        name = self.lineName.text().strip()
-        roast = self.lineRoast.text().strip()
-        ground = self.lineGround.text().strip()
-        desc = self.lineDescription.text().strip()
+        name = self.ui.lineName.text().strip()
+        roast = self.ui.lineRoast.text().strip()
+        ground = self.ui.lineGround.text().strip()
+        desc = self.ui.lineDescription.text().strip()
 
         try:
-            price = float(self.linePrice.text())
-            volume = int(self.lineVolume.text())
+            price = float(self.ui.linePrice.text())
+            volume = int(self.ui.lineVolume.text())
         except ValueError:
             QMessageBox.warning(self, "Ошибка", "Цена и объем должны быть числами.")
             return
@@ -63,19 +63,21 @@ class AddEditForm(QtWidgets.QWidget):
 class CoffeeApp(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("main.ui", self)
+        self.ui = main_ui.Ui_MainWindow()
+        self.ui.setupUi(self)
 
-        self.table = self.tableCoffee
+        self.table = self.ui.tableCoffee
+        self.form = None
 
-        self.btnAdd.clicked.connect(self.add_record)
-        self.btnEdit.clicked.connect(self.edit_record)
+        self.ui.btnAdd.clicked.connect(self.add_record)
+        self.ui.btnEdit.clicked.connect(self.edit_record)
+        self.table.itemDoubleClicked.connect(self.edit_record)
 
         self.load_data()
 
     def load_data(self):
         conn = sqlite3.connect(DB_NAME)
         cur = conn.cursor()
-
         cur.execute("SELECT * FROM coffee")
         rows = cur.fetchall()
 
@@ -89,14 +91,23 @@ class CoffeeApp(QtWidgets.QMainWindow):
         conn.close()
 
     def add_record(self):
+        if self.form and self.form.isVisible():
+            self.form.close()
+            self.form = None
+            return
+
         self.form = AddEditForm(self)
         self.form.show()
 
     def edit_record(self):
         row = self.table.currentRow()
-
         if row == -1:
             QMessageBox.warning(self, "Ошибка", "Выберите строку для редактирования.")
+            return
+
+        if self.form and self.form.isVisible():
+            self.form.close()
+            self.form = None
             return
 
         record = []
